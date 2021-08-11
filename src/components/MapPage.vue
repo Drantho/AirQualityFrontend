@@ -1,12 +1,24 @@
 <template>
-	<div class="map-page">
-		<Header/>
-		<controls @pan="pan" @zoomIn="zoomIn" @zoomOut="zoomOut" @citySearch="citySearch" :city="city" :state="state"/>
-		<div v-if="!isFetchingAirQuality">
-			<Map :boxData="this.boxData" :xPosition="this.xPosition" :yPosition="this.yPosition" :zoom="this.zoom" :loaded="loaded"/>
-		</div>
-
-	</div>
+  <div class="map-page">
+    <Header />
+    <controls
+      @pan="pan"
+      @zoomIn="zoomIn"
+      @zoomOut="zoomOut"
+      @citySearch="citySearch"
+      :city="city"
+      :state="state"
+    />
+    <div v-if="!isFetchingAirQuality">
+      <Map
+        :boxData="this.boxData"
+        :xPosition="this.xPosition"
+        :yPosition="this.yPosition"
+        :zoom="this.zoom"
+        :loaded="loaded"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -34,25 +46,50 @@
 				loaded: false
 			};
 		},
-		async mounted() {
-			this.airQuality = await API.gps();
-			// this.airQuality = await API.gps(48.0795, -123.1018);//sequim
-			// this.airQuality = await API.gps(47.6588, -117.4260);//spokane
-			// this.airQuality = await API.gps(43.4927, -112.0408);//idaho falls
-			// this.airQuality = await API.gps(40.6377, -112.2961);//utah
-
-			this.xPosition = this.airQuality.data.data.location.coordinates[0];
-			this.yPosition = this.airQuality.data.data.location.coordinates[1];
-
-			this.city = this.airQuality.data.data.city;
-			this.state = this.airQuality.data.data.state;
-
-			await this.getBoxData();
-
-			this.isFetchingAirQuality = false;
-			this.loaded = true;
+		mounted() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(this.success, this.err);
+			} else {
+				this.err()
+			}
 		},
 		methods: {
+			async success(location){
+				this.airQuality = await API.gps(location.coords.latitude, location.coords.longitude);
+				// this.airQuality = await API.gps(48.0795, -123.1018);//sequim
+				// this.airQuality = await API.gps(47.6588, -117.4260);//spokane
+				// this.airQuality = await API.gps(43.4927, -112.0408);//idaho falls
+				// this.airQuality = await API.gps(40.6377, -112.2961);//utah
+
+				this.xPosition = this.airQuality.data.data.location.coordinates[0];
+				this.yPosition = this.airQuality.data.data.location.coordinates[1];
+
+				this.city = this.airQuality.data.data.city;
+				this.state = this.airQuality.data.data.state;
+
+				await this.getBoxData();
+
+				this.isFetchingAirQuality = false;
+				this.loaded = true;
+			},
+			async err(){
+				this.airQuality = await API.gps();
+				// this.airQuality = await API.gps(48.0795, -123.1018);//sequim
+				// this.airQuality = await API.gps(47.6588, -117.4260);//spokane
+				// this.airQuality = await API.gps(43.4927, -112.0408);//idaho falls
+				// this.airQuality = await API.gps(40.6377, -112.2961);//utah
+
+				this.xPosition = this.airQuality.data.data.location.coordinates[0];
+				this.yPosition = this.airQuality.data.data.location.coordinates[1];
+
+				this.city = this.airQuality.data.data.city;
+				this.state = this.airQuality.data.data.state;
+
+				await this.getBoxData();
+
+				this.isFetchingAirQuality = false;
+				this.loaded = true;
+			},
 			async citySearch(city, state) {
 				this.loaded = false;
 				this.zoom = 35000;
@@ -133,73 +170,72 @@
 </script>
 
 <style>
-	@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-	body {
-		background-image: url('../assets/airbg.png');
-		background-size: cover;
-		color: white;
-		font-family: 'Montserrat';
-		padding-top: 25px;
-	}
-	svg {
-		width: 800px;
-		height: 500px;
-		background-color: rgba(0,0,0,0.4);
-		position: relative;
-		border-bottom-right-radius: 25px;
-	}
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+body {
+  background-image: url("../assets/airbg.png");
+  background-size: cover;
+  color: white;
+  font-family: "Montserrat";
+  padding-top: 25px;
+}
+svg {
+  width: 800px;
+  height: 500px;
+  background-color: rgba(0, 0, 0, 0.4);
+  position: relative;
+  border-bottom-right-radius: 25px;
+}
 
-	.map-page {
-		display: grid;
-		grid-template-columns: auto 800px;
-		grid-template-areas: "a a" "b c";
-		border-radius: 25px;
-		border: 2px solid rgba(255,255,255,0.8);
-		max-width: 1200px;
-		margin: auto;
-		backdrop-filter: blur(40px);
-		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-	}
+.map-page {
+  display: grid;
+  grid-template-columns: auto 800px;
+  grid-template-areas: "a a" "b c";
+  border-radius: 25px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  max-width: 1200px;
+  margin: auto;
+  backdrop-filter: blur(40px);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 
-	.svg-wrapper {
-		position: relative;
-		width: 800px;
-		height: 500px;
-		grid-area: c;
-	}
+.svg-wrapper {
+  position: relative;
+  width: 800px;
+  height: 500px;
+  grid-area: c;
+}
 
-	.overlay {
-		position: absolute;
-		top: 0;
-		left: 0;
-		background-color: rgba(0,0,0,0.4);
-		backdrop-filter: blur(5px);
-		width: 100%;
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: white;
-		border-bottom-right-radius: 25px;
-	}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border-bottom-right-radius: 25px;
+}
 
-	.loaded {
-		display: none;
-	}
+.loaded {
+  display: none;
+}
 
-	.pin {
+.pin {
+}
 
-	}
-
-	.tooltip {
-		position: absolute;
-		text-align: center;
-		padding: 10px 60px;
-		font: 12px;
-		background: rgba(255, 255, 255, 0.7);
-		border: 2px solid white;
-		border-radius: 25px;
-		pointer-events: none;
-		color: black;
-	}
+.tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 10px 60px;
+  font: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid white;
+  border-radius: 25px;
+  pointer-events: none;
+  color: black;
+}
 </style>
