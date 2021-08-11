@@ -22,6 +22,7 @@ export default({
 		border-top-right-radius: 25px;
 		border-top-left-radius: 25px;
 		border-bottom: 2px solid white;
+		width: 100%;
 	}
 
 	.title h1 {

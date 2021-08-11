@@ -179,19 +179,20 @@ body {
   padding-top: 25px;
 }
 svg {
-  width: 800px;
+  max-width: 800px;
   height: 500px;
+  width: 100%;
   background-color: rgba(0, 0, 0, 0.4);
   position: relative;
-  border-bottom-right-radius: 25px;
 }
 
 .map-page {
   display: grid;
-  grid-template-columns: auto 800px;
-  grid-template-areas: "a a" "b c";
+  grid-template-columns: 1fr;
+  grid-template-areas: "a" "c" "b";
   border-radius: 25px;
   border: 2px solid rgba(255, 255, 255, 0.8);
+  width: 100%;
   max-width: 1200px;
   margin: auto;
   backdrop-filter: blur(40px);
@@ -200,7 +201,8 @@ svg {
 
 .svg-wrapper {
   position: relative;
-  width: 800px;
+  max-width: 800px;
+  width: 100%;
   height: 500px;
   grid-area: c;
 }
@@ -217,7 +219,6 @@ svg {
   align-items: center;
   justify-content: center;
   color: white;
-  border-bottom-right-radius: 25px;
 }
 
 .loaded {
@@ -237,5 +238,18 @@ svg {
   border-radius: 25px;
   pointer-events: none;
   color: black;
+}
+
+@media only screen and (min-width: 1215px) {
+	svg {
+  		border-bottom-right-radius: 25px;
+	}
+	.overlay {
+  		border-bottom-right-radius: 25px;
+	}
+	.map-page {
+		grid-template-areas: "a a" "b c";
+		grid-template-columns: auto 800px;
+	}
 }
 </style>
